@@ -1,0 +1,7 @@
+C:\Users\thespiker\source\repos\SQLFiller\SqlFiller\bin\Debug\SQLFiller.exe.config
+C:\Users\thespiker\source\repos\SQLFiller\SqlFiller\bin\Debug\SQLFiller.exe
+C:\Users\thespiker\source\repos\SQLFiller\SqlFiller\bin\Debug\SQLFiller.pdb
+C:\Users\thespiker\source\repos\SQLFiller\SqlFiller\obj\Debug\SQLFiller.csproj.AssemblyReference.cache
+C:\Users\thespiker\source\repos\SQLFiller\SqlFiller\obj\Debug\SQLFiller.csproj.CoreCompileInputs.cache
+C:\Users\thespiker\source\repos\SQLFiller\SqlFiller\obj\Debug\SQLFiller.exe
+C:\Users\thespiker\source\repos\SQLFiller\SqlFiller\obj\Debug\SQLFiller.pdb
