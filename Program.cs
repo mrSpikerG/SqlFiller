@@ -9,34 +9,22 @@ using SQLFiller.model;
 
 namespace SQLFiller
 {
-
-    //--SQL 
-    //        --подбирать данные
-    //       --вывод sql и сохранение в файл
-
-    /*    CREATE TABLE BUYERS(
-    [BuyerCode] INT PRIMARY KEY,
-    [FIO] VARCHAR(100),
-    [Login] VARCHAR(32),
-    [Email] VARCHAR(100),
-    [Phone] VARCHAR(20),
-    [Address] VARCHAR(100)
-    );*/
-    //VALUES ('',N,)
     class Program
     {
+
+        public static string PATH = "C:\\Users\\thespiker\\Documents\\sqlfiller";
         public static List<SQLVariable> SQLVariables = new List<SQLVariable>();
 
         public static Random random = new Random();
-
+        public static string TableName = "TableName";
 
         static void Main(string[] args)
         {
-            if (!Directory.Exists("C:\\Users\\thespiker\\Documents\\sqlfiller"))
+            if (!Directory.Exists(PATH))
             {
-                Directory.CreateDirectory("C:\\Users\\thespiker\\Documents\\sqlfiller");
+                Directory.CreateDirectory(PATH);
             }
-            string[] files = Directory.GetFiles("C:\\Users\\thespiker\\Documents\\sqlfiller");
+            string[] files = Directory.GetFiles(PATH);
 
 
             foreach (var i in files)
@@ -49,8 +37,10 @@ namespace SQLFiller
 
                         string text = File.ReadAllText(i);
 
-
                         int startindex = text.IndexOf('(') + 1;
+                        TableName = text.Substring(text.IndexOf("TABLE ")+6 ,startindex- text.IndexOf("TABLE ")-7);
+                        
+
                         text = text.Substring(startindex, text.LastIndexOf(')') - startindex);
 
                         string[] variables = text.Split(',');
@@ -58,13 +48,13 @@ namespace SQLFiller
                         {
 
                             string[] TEMP = variables[j].Split(' ');
-                            
-                            
-                            if(j== variables.Length - 1)
+
+
+                            if (j == variables.Length - 1)
                             {
-                                TEMP[1] = TEMP[1].Substring(0, TEMP[1].Length-2);
+                                TEMP[1] = TEMP[1].Substring(0, TEMP[1].Length - 2);
                             }
-                            
+
                             SQLVariables.Add(new SQLVariable(TEMP[1].ToUpper(), TEMP[0].Substring(3, TEMP[0].Length - 4)));
                         }
                     }
@@ -76,20 +66,13 @@ namespace SQLFiller
                 }
             }
 
-
-            for (int i = 0; i < SQLVariables.Count; i++)
-            {
-                Console.WriteLine(SQLVariables[i]);
-            }
-
-
-                string sqlstring = "INSERT INTO TABLE(";
+            string sqlstring = $"INSERT INTO {TableName}(";
             for (int i = 0; i < SQLVariables.Count; i++)
             {
                 sqlstring += $"[{SQLVariables[i].name}]";
                 if (i != SQLVariables.Count - 1)
                 {
-                    sqlstring += ",";
+                    sqlstring += ", ";
                 }
 
             }
@@ -102,7 +85,15 @@ namespace SQLFiller
                 for (int i = 0; i < SQLVariables.Count; i++)
                 {
 
-                    sqlstring += $"'{SQLVariables[i].value}'";
+                    if (SQLVariables[i].isTextValue)
+                    {
+                        sqlstring += $"'{SQLVariables[i].value}'";
+                    }
+                    else
+                    {
+                        sqlstring += $"{SQLVariables[i].value}";
+                    }
+
                     if (i != SQLVariables.Count - 1)
                     {
                         sqlstring += ", ";
@@ -121,10 +112,9 @@ namespace SQLFiller
                 regenerateList();
 
             }
+            File.WriteAllText($"{PATH}\\sqlinsert.sql", sqlstring);
             Console.WriteLine(sqlstring);
         }
-
-
 
         public static void regenerateList()
         {

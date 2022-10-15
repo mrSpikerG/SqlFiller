@@ -11,6 +11,7 @@ namespace SQLFiller.model
         public string type;
         public string name;
         public string value;
+        public bool isTextValue;
 
         public Random random = new Random();
         public SQLVariable(string type, string name)
@@ -25,41 +26,53 @@ namespace SQLFiller.model
 
         public void generateValues()
         {
-            switch (type)
+            this.isTextValue = false;
+            switch (this.type)
             {
                 case "SMALLMONEY":
                 case "INT":
                     this.value = getRandomNumbers(int.MinValue, int.MaxValue);
-                    break;
+                    return;
                 case "MONEY":
                 case "BIGINT":
                     this.value = LongRandom(long.MinValue, long.MaxValue).ToString();
-                    break;
+                    return;
                 case "SMALLINT":
                     this.value = getRandomNumbers(short.MinValue, short.MaxValue);
-                    break;
+                    return;
                 case "TINYINT":
                     this.value = getRandomNumbers(0, 255);
-                    break;
+                    return;
                 case "FLOAT":
                     this.value = GetRandomFloat(double.MinValue, double.MaxValue);
-                    break;
+                    return;
                 case "REAL":
                     this.value = GetRandomFloat(float.MinValue, float.MaxValue);
-                    break;
+                    return;
                 case "TEXT":
                 case "NTEXT":
                     checkForName(int.MaxValue);
-                    break;
+                    this.isTextValue = true;
+                    return;
+                case "BIT":
+                    this.value = random.Next(0, 2) == 1 ? "TRUE" : "FALSE";
+                    return;
+            }
+            if (this.type.StartsWith("VARCHAR") || this.type.StartsWith("NVARCHAR"))
+            {
+                int startindex = type.IndexOf('(') + 1;
+                checkForName(int.Parse(type.Substring(startindex, type.LastIndexOf(')') - startindex)));
+                this.isTextValue = true;
+                return;
             }
         }
 
-        public void checkForName(int maxchars)
+        private void checkForName(int maxchars)
         {
             switch (name.ToLower())
             {
                 case "phone":
-                    this.value = getPhoneNumber();
+                    this.value = GetPhoneNumber();
                     return;
                 case "age":
                     this.value = getAge();
@@ -71,27 +84,44 @@ namespace SQLFiller.model
                 case "fio":
                     this.value = getFIO();
                     return;
+                case "name":
+                    this.value = getName();
+                    return;
             }
-            this.value = "random";
+            if (maxchars == int.MaxValue)
+            {
+                this.value = GenerateWorld(50);
+            }
+            else
+            {
+                this.value = GenerateWorld(maxchars);
+            }
             return;
 
         }
+
+
+        private string CharsForWord = "abcdefghijklmnopqrstuvwxyz1234567890 ";
+        private string GenerateWorld(int maxchars)
+        {
+            string word = String.Empty;
+            for (int i = 0; i < maxchars; i++)
+            {
+                word += CharsForWord[random.Next(0, CharsForWord.Length)];
+            }
+            return word;
+        }
+
 
         public override string ToString()
         {
             return $"{type} {name} {value}";
         }
 
-
-        public string generateRandomWord()
-        {
-            return "random";
-        }
-
         //
-        //Номер
+        //  PhoneNumber
         //
-        public string getPhoneNumber()
+        private string GetPhoneNumber()
         {
 
             string[] value2 = new string[3];
@@ -106,9 +136,9 @@ namespace SQLFiller.model
         }
 
         //
-        //Возраст
+        //  Age
         //
-        public string getAge()
+        private string getAge()
         {
             string age;
             age = random.Next(4, 85).ToString();
@@ -116,9 +146,9 @@ namespace SQLFiller.model
         }
 
         //
-        //gmail
+        //  gmail
         //
-        public string getMail()
+        private string getMail()
         {
             int n = random.Next(100000);
             string mail = $"newmail{n}@gmail.com";
@@ -126,15 +156,15 @@ namespace SQLFiller.model
         }
 
         //
-        //randomNumbers
+        //  randomNumbers
         //
-        public string getRandomNumbers(int min, int max)
+        private string getRandomNumbers(int min, int max)
         {
             return random.Next(min, max).ToString();
         }
 
 
-        public string GetRandomFloat(double minimum, double maximum)
+        private string GetRandomFloat(double minimum, double maximum)
         {
             return (random.NextDouble() * (maximum - minimum) + minimum).ToString();
         }
@@ -144,7 +174,7 @@ namespace SQLFiller.model
         //
         //  random long
         //
-        public long LongRandom(long min, long max)
+        private long LongRandom(long min, long max)
         {
             long result = random.Next((Int32)(min >> 32), (Int32)(max >> 32));
             result = (result << 32);
@@ -153,9 +183,9 @@ namespace SQLFiller.model
         }
 
         //
-        //FIO
+        //  FIO
         //
-        public string getFIO()
+        private string getFIO()
         {
             string[] name = { "Alex", "Ivan", "Alica", "Ilya", "Viktoria", "Davud", "Diana", "Eva", "Nastya", "Yaroslav" };
             string[] surname = { "Williams", "Peters", "Gibson", "Martin", "Jordan", "Jackson", "Grant", "Collins", "Bradley", "Barlow" };
@@ -164,14 +194,14 @@ namespace SQLFiller.model
             return $"{name[rName]} {surname[rSurname]}";
         }
         //
-        //Name
+        //  Name
         //
-        public string getName()
+        private string getName()
         {
             string[] name = { "Alex", "Ivan", "Alica", "Ilya", "Viktoria", "Davud", "Diana", "Eva", "Nastya", "Yaroslav" };
             int rName = random.Next(10);
             return $"{name[rName]}";
-           
+
         }
     }
 }
